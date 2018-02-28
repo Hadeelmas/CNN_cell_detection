@@ -1,6 +1,6 @@
 precision = 2;
 radius = 13;
-nbr_of_random_images = 3;
+nbr_of_random_images = 2;
 random_images_index = randperm(length(data.image),nbr_of_random_images);
 
 
