@@ -32,6 +32,8 @@ for i = 1:5
         %training_labels = training.hard.label(random_indexes);
         generate_hard_training_data_wrong
         training_data = cat(4,hard_training_data{:});
+        random_indexes = randperm(length(training_data));
+        training_data = training_data(:,:,:,random_indexes);
         training_labels = categorical(zeros(1,length(training_data)))
     end
     
