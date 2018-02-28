@@ -10,12 +10,12 @@ generate_validation_data
 generate_traning_data
 
 % Train network
-options = trainingOptions('sgdm', 'MaxEpoch',1); %, 'OutputFcn',@(info)stopIfAccuracyNotImproving(info,3));
+options = trainingOptions('sgdm', 'MaxEpoch',3); %, 'OutputFcn',@(info)stopIfAccuracyNotImproving(info,3));
 % first iteration
 random_indexes = randperm(length(training.image));
 layers = cnn_classifier(patch_size);
 net = trainNetwork(training.image(:,:,:,random_indexes), training.label(random_indexes), layers, options);
-options = trainingOptions('sgdm', 'MaxEpoch',1);
+options = trainingOptions('sgdm', 'MaxEpoch',2);
 training.hard.image = [];
 training.hard.label = [];
 probability_to_train_on_hard = 0.8;
@@ -23,7 +23,7 @@ probability_to_train_on_hard = 0.8;
 %training.image = cat(4, training_image{:});
 %training.label = categorical(training_label);
 
-for i = 1:3
+for i = 1:5
     
     if (isempty(training.hard.label) || rand < probability_to_train_on_hard)
         generate_traning_data
@@ -31,7 +31,7 @@ for i = 1:3
         training_data = training.image(:,:,:,random_indexes);
         training_labels = training.label(random_indexes);
     else
-        random_indexes = randperm(length(training.hard.image));
+        random_indexes = randperm(length(training.hard.label));
         training_data = training.hard.image(:,:,:,random_indexes);
         training_labels = training.hard.label(random_indexes);
     end
