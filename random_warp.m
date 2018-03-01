@@ -6,7 +6,8 @@ function warped = random_warp(img)
 
     b = rand(1)/4;
     c = rand(1)/4;
-
+    
+    % Affine transformation matrix
     A = [1 b;
         c 1];
     t = [- b*target_size(1);
