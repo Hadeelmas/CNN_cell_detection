@@ -55,4 +55,6 @@ convolutional_training.label = [];
     end
     
     convolutional_training.data = cat(4,convolutional_training.data{:});
+    convolutional_training.label = [convolutional_training.label, 0, 1];
     convolutional_training.label = categorical(convolutional_training.label);
+    convolutional_training.label = convolutional_training.label(1:end-2);

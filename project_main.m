@@ -32,9 +32,9 @@ for i = 1:1
         %training_labels = training.hard.label(random_indexes);
         generate_hard_training_data_wrong
         
-        random_indexes = randperm(size(training_data,4));
-        training_data = convolutional_traing.data(:,:,:,random_indexes);
-        training_labels = convolutional_traing.label(random_indexes);
+        random_indexes = randperm(size(convolutional_training.data, 4));
+        training_data = convolutional_training.data(:,:,:,random_indexes);
+        training_labels = convolutional_training.label(random_indexes);
     end
     
     net = trainNetwork(training_data, training_labels, net.Layers, options);
@@ -53,14 +53,16 @@ end
 %x = (xp - 1) * stride + 1;
 %y = (yp - 1) * stride + 1;
 %%
+% koda bild för speglad padding redigera koordinater
 probmap = sliding_cnn(net, data.image{1}, 1);
 
 img = data.image{1};
 index_val = data.cellcenters{1};
 imsize = size (img);
-B = imresize(probmap(:,:,2),imsize(1:2));
+%B = imresize(probmap(:,:,2),imsize(1:2));
 %%
-maxima = strict_local_maxima(B, 0.5, 1);
+% kolla för nära en cell 
+maxima = strict_local_maxima(probmap(:,:,1), 0.5, 1);
 
 imagesc(img);
 hold on
