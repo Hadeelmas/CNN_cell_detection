@@ -1,5 +1,7 @@
 function cell_with_augmented_data = do_random_augmentations(cells, nbr_of_datacells)
-  
+%DO_RANDOM_AUGMENTATIONS Inputs: CELLS list cells, in each cell is an image
+% nbr_of_datacells is the total number of data cells that will be used for
+% training the network, augmented and not augmented.
 N = length(cells);
 cell_with_augmented_data = cells;
 cell_with_augmented_data{nbr_of_datacells} = [];
@@ -7,7 +9,8 @@ cell_with_augmented_data{nbr_of_datacells} = [];
 for i = N+1:nbr_of_datacells
     cell_idx = randi(N);
     img = cells{cell_idx};
-    
+    % Randomly choose which augmentations to do on each image that is to be
+    % augmented.
     nbr_of_augmentations = randi(5);
     augmentation_choser = randperm(5,nbr_of_augmentations);
     for j = 1:nbr_of_augmentations
@@ -24,6 +27,7 @@ for i = N+1:nbr_of_datacells
                 img = random_noise(img);
         end
     end  
+    % Append the augmented image.
     cell_with_augmented_data{i} = img;
 end
 end
