@@ -15,26 +15,27 @@ options = trainingOptions('sgdm', 'MaxEpoch',3); %, 'OutputFcn',@(info)stopIfAcc
 random_indexes = randperm(length(training.image));
 layers = cnn_classifier(patch_size);
 net = trainNetwork(training.image(:,:,:,random_indexes), training.label(random_indexes), layers, options);
-options = trainingOptions('sgdm', 'MaxEpoch',3);
+options = trainingOptions('sgdm', 'MaxEpoch',2);
 probability_to_train_on_hard = 0.7;
 
 
-for i = 1:1
+for i = 1:10
     
-    if 0 && (~isfield(training, 'hard') || rand < probability_to_train_on_hard)
+    if (~isfield(training, 'hard') || rand < probability_to_train_on_hard)
         generate_traning_data
         random_indexes = randperm(length(training.image));
         training_data = training.image(:,:,:,random_indexes);
         training_labels = training.label(random_indexes);
     else
-        %random_indexes = randperm(length(training.hard.label));
-        %training_data = training.hard.image(:,:,:,random_indexes);
-        %training_labels = training.hard.label(random_indexes);
-        generate_hard_training_data_wrong
+        random_indexes = randperm(length(training.hard.label));
+        training_data = training.hard.image(:,:,:,random_indexes);
+        training_labels = training.hard.label(random_indexes);
         
-        random_indexes = randperm(size(convolutional_training.data, 4));
-        training_data = convolutional_training.data(:,:,:,random_indexes);
-        training_labels = convolutional_training.label(random_indexes);
+        %generate_hard_training_data_wrong
+        
+        %random_indexes = randperm(size(convolutional_training.data, 4));
+        %training_data = convolutional_training.data(:,:,:,random_indexes);
+        %training_labels = convolutional_training.label(random_indexes);
     end
     
     net = trainNetwork(training_data, training_labels, net.Layers, options);
@@ -43,7 +44,6 @@ for i = 1:1
 end
 % 
 %%
-%    generate_hard_training_data
 %nonaugmented_network = net;
 %save nonaugmented_network
 
@@ -62,7 +62,7 @@ imsize = size (img);
 %B = imresize(probmap(:,:,2),imsize(1:2));
 %%
 % kolla för nära en cell 
-maxima = strict_local_maxima(probmap(:,:,1), 0.5, 1);
+maxima = strict_local_maxima(probmap(:,:,2), 0.5, 1);
 
 imagesc(img);
 hold on

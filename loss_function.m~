@@ -4,8 +4,9 @@ generated_indexes_size = size(generated_indexes);
 cell_count_diff = validation_indexes_size(2) -generated_indexes_size(2);
 nbr_of_outliers = 0;
 outlier_index = [];
-validation_inlier_pt = [];
-generated_inlier_pt = [];
+corresponding_point = [];
+
+
 for i = 1:generated_indexes_size(2)
     
     length_to_val = vecnorm(validation_indexes - generated_indexes(:,i));
@@ -16,13 +17,16 @@ for i = 1:generated_indexes_size(2)
         nbr_of_outliers = nbr_of_outliers +1;
         outlier_index = [outlier_index, i];
     else
-        validation_inlier_pt = [validation_inlier_pt,validation_indexes(:,inlier_index(1))];
-        generated_inlier_pt = [generated_inlier_pt, generated_indexes(:,i)];
+        validation_pt = [validation_pt,validation_indexes(inlier_index(1)) ]
         
+        
+        
+        corresponding_point_diff = [corresponding_point_diff, validation_indexes(:,inlier_index)];
     end
 end
-
-residuals = sum(vecnorm(validation_inlier_pt - generated_inlier_pt));
+inliers = generated_indexes;
+inliers(outlier_index) = [];
+residuals = corresponding_point
 
 end
 
