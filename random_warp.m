@@ -10,10 +10,11 @@ function warped = random_warp(img)
     % Affine transformation matrix
     A = [1 b;
         c 1];
+    % The translatation coordinates for keeping the middle in the middle
     t = [- b*target_size(1);
          - c*target_size(2)];
     t = round(t);
-    
+    % Warp the image
     target_size(1:2) =  target_size(1:2)+abs(flip(t))';
     warped = affine_warp(target_size, img, A, t);
 
