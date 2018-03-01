@@ -1,14 +1,18 @@
-%% extract some positives
+% Script that genereates training data for training a neural network.
+
+%% Begin by extracting some positives
 global patch_size
+% Set the desired number of positive training images per set and number
+% of extractions from each image.
 nrb_of_positives_per_set = 3000;
 nbr_of_pos_extraction_per_image = 30;
-
+% Initializing parameters
 data_set_length = length(data.image);
 training_set = randperm(data_set_length);
 radius = 25;
 cropped_radius = 13;
 positives = cell(1,nbr_of_pos_extraction_per_image*data_set_length);
-
+% Extract the positives
 for i = 1:length(training_set)
     training_index = training_set(i); 
     idx_positives = ((i-1)*nbr_of_pos_extraction_per_image+1):i*nbr_of_pos_extraction_per_image;
@@ -30,7 +34,7 @@ nbr_of_negatives_per_set = 3000;
 nbr_of_neg_extraction_per_image = ceil(nbr_of_negatives_per_set/length(training_set));
 nbr_of_actual_negatives_per_set = length(training_set)*nbr_of_neg_extraction_per_image;
 negatives = cell(1,nbr_of_actual_negatives_per_set);
-
+% Get random negative points, they do not get augmented.
 for i = 1:length(training_set)
     training_index = training_set(i);
     idx_negatives = (((i-1)*nbr_of_neg_extraction_per_image+1):i*nbr_of_neg_extraction_per_image);
