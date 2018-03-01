@@ -37,23 +37,36 @@ for i = 1:10
     generate_hard_training_data
 end
 % 
-
 %%
-% koda bild för speglad padding redigera koordinater
-probmap = sliding_cnn(net, data.image{1}, 1);
+
+stride = 1;
+probmap = sliding_cnn(net, data.image{1}, stride);
 
 img = data.image{1};
 index_val = data.cellcenters{1};
-imsize = size (img);
-%B = imresize(probmap(:,:,2),imsize(1:2));
+imsize = size(img);
+B = probmap(:,:,2);
 %%
-% kolla för nära en cell 
-maxima = strict_local_maxima(probmap(:,:,2), 0.5, 1);
+close all
+% A = imresize(img, [size(probmap,1), size(probmap,2)], 'bilinear');
+
+maxima = strict_local_maxima(B, 0.5, 1);
+x_maxima = (maxima(1,:) - 1) * stride + 1;
+y_maxima = (maxima(2,:) - 1) * stride + 1;
+% -------------------------------------------------- %
+% REFINING THE MAXIMA
+refined_maxima = refine_maxima(maxima, B);
+x_refmaxima = (refined_maxima(1,:) - 1) * stride + 1;
+y_refmaxima = (refined_maxima(2,:) - 1) * stride + 1;
+% -------------------------------------------------- %
 
 imagesc(img);
 hold on
-scatter(maxima(1,:),maxima(2,:))
+scatter(x_maxima,y_maxima)
+scatter(x_refmaxima,y_refmaxima)
 scatter(index_val(1,:), index_val(2,:))
+legend('Maxima', 'Refined Maxima', 'Validation indexes')
 hold off
+% figure
+% imagesc(B)
 %%
-
