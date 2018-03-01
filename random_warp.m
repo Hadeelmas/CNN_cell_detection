@@ -1,4 +1,7 @@
 function warped = random_warp(img)
+% function for doing a random small affine warping of an image while
+% simultaneously keeping the cells as centered as possible
+
     target_size = size(img);
 
     b = rand(1)/4;

@@ -30,12 +30,6 @@ for i = 1:10
         random_indexes = randperm(length(training.hard.label));
         training_data = training.hard.image(:,:,:,random_indexes);
         training_labels = training.hard.label(random_indexes);
-        
-        %generate_hard_training_data_wrong
-        
-        %random_indexes = randperm(size(convolutional_training.data, 4));
-        %training_data = convolutional_training.data(:,:,:,random_indexes);
-        %training_labels = convolutional_training.label(random_indexes);
     end
     
     net = trainNetwork(training_data, training_labels, net.Layers, options);
@@ -43,15 +37,7 @@ for i = 1:10
     generate_hard_training_data
 end
 % 
-%%
-%nonaugmented_network = net;
-%save nonaugmented_network
 
-%%
-
-%probs = sliding_fcn(net, img);
-%x = (xp - 1) * stride + 1;
-%y = (yp - 1) * stride + 1;
 %%
 % koda bild för speglad padding redigera koordinater
 probmap = sliding_cnn(net, data.image{1}, 1);
@@ -70,3 +56,4 @@ scatter(maxima(1,:),maxima(2,:))
 scatter(index_val(1,:), index_val(2,:))
 hold off
 %%
+
