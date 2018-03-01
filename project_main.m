@@ -1,5 +1,4 @@
-addpath(genpath(fileparts(which('project_main.m'))));
-clear all
+
 %% Load all images and their corresponding cell centers
 load_images
 
