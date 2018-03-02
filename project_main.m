@@ -19,14 +19,18 @@ net = trainNetwork(training.image(:,:,:,random_indexes),            ...
                    training.label(random_indexes), layers, options);
 %% Setup parameters for training the network
 iterations_since_not_improving = 30;
-options = trainingOptions('sgdm', 'MaxEpoch',3, 'OutputFcn',       ...
+opt_normal_ex = trainingOptions('sgdm', 'MaxEpoch',3, 'OutputFcn',  ...
+                @(info)stopIfTrainingAccuracyNotImproving(info,     ...
+                iterations_since_not_improving));
+opt_hard_ex = trainingOptions('sgdm', 'MaxEpoch',5, 'OutputFcn',    ...
                 @(info)stopIfTrainingAccuracyNotImproving(info,     ...
                 iterations_since_not_improving));
 
 probability_to_train_on_hard = 0.7;
+break_threshold = 5;
 
-
-for i = 1:1000
+%% Train the network
+for i = 1:100
     
     if (~isfield(training, 'hard') || rand < probability_to_train_on_hard)
         generate_traning_data
@@ -34,33 +38,33 @@ for i = 1:1000
         training_data = training.image(:,:,:,random_indexes);
         training_labels = training.label(random_indexes);
         store_hard = 1;
+        options = opt_normal_ex;
     else
+        fprintf('Doing some hard data iterations\n');
         random_indexes = randperm(length(training.hard.label));
         training_data = training.hard.image(:,:,:,random_indexes);
         training_labels = training.hard.label(random_indexes);
         store_hard = 0;
+        options = opt_hard_ex;
     end
     
     % Generate the new network
     net = trainNetwork(training_data, training_labels, net.Layers, options);
-    % Store the examples that are missclassified
+    
+    % Store the examples that are missclassified when training on "easy"
+    % data
+    
     if store_hard == 1
         if (~isfield(training, 'hard'))
             length_of_hard = 0;
-            nbr_iter_bef_break = 3;
         else
             length_of_hard = training.hard.length;
         end
 
         generate_hard_training_data
-
-        if length_of_hard < training.hard.length
-            nbr_iter_bef_break = 3;
-        else
-            nbr_iter_bef_break = nbr_iter_bef_break - 1;
-        end
-
-        if nbr_iter_bef_break == 0
+        % If not enough hard data are added, we are satisfied with the
+        % network.
+        if (length_of_hard - training.hard.length) < break_threshold
             break
         end
     end
