@@ -116,16 +116,12 @@ hold off
 % figure
 % imagesc(B)
 threshold = 5;
-generated_indexes = [x_maxima; y_maxima];
-generated_indexes_refined = [x_refmaxima; y_refmaxima];
 [cell_count_diff,nbr_of_outliers, residuals] = ...
-    loss_function(generated_indexes,index_val, threshold);
+    loss_function(generated_indexes,validation_indexes, threshold)
 [cell_count_diff_refined,nbr_of_outliers_refined, residuals_refined] = ...
-    loss_function(generated_indexes_refined,index_val, threshold);
+    loss_function(generated_indexes,validation_indexes, threshold)
 
 disp(['The number of cells counted is ' num2str(cell_count_diff) 'less than the real value'])
-disp(['The number of outlier generated (threshold = ' num2str(threshold) ') on the non refined set is ' num2str(nbr_of_outliers)])
-disp(['The residuals on the non refined set is ' num2str(residuals)])
-disp(['The number of outlier generated (threshold = ' num2str(threshold) ') on the refined set is ' num2str(nbr_of_outliers_refined)])
-disp(['The residuals on the refined set is ' num2str(residuals_refined)])
+disp(['The number of outlier generated (threshold = ' num2str(threshold) ') on the non refined set is'])
+disp(['The number of outlier generated (threshold = ' num2str(threshold) ') on the refined set'])
 %%
