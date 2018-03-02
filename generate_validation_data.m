@@ -1,6 +1,7 @@
 % Script to generate validation data
 nbr_of_validation = 10;
-
+radius = 13;
+nbr_of_negatives = 150;
 
 if ~exist('data','var')
     load_images
@@ -13,4 +14,24 @@ if ~exist('validation','var')
     data.image(validation_set) = [];
     data.cellcenters(validation_set) = [];
 end
+validation.patches.image = {};
+validation.patches.label = [];
+% Generate validation patches
+for i = 1:nbr_of_validation
+    img = validation.image{i};
+    cell_indexes = validation.cellcenters{i};
+    [positives, edge_positives] = extract_all_positives(img, ...
+                                                    cell_indexes,radius);
+    negatives = extract_random_negatives(img, cell_indexes, ... 
+                                            radius, nbr_of_negatives);
+                                        
+    validation.patches.image = [validation.patches.image, positives, ...
+                                negatives];
+    validation.patches.label = [validation.patches.label,  ...
+                                ones(1,length(positives)), ...
+                                zeros(1, nbr_of_negatives)];
+end
 
+validation.patches.image = cat(4, validation.patches.image{:});
+validation.patches.label = categorical(validation.patches.label);
+validation.patches.length = length(validation.patches.label);

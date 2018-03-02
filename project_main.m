@@ -7,16 +7,19 @@ generate_validation_data
 
 %% generate training data
 generate_traning_data
+
 %% Set up option parameters for initial training
 iterations_since_not_improving = 50; % one Epoch is 50 iterations
 options = trainingOptions('sgdm', 'MaxEpoch',10, 'OutputFcn',       ...
                 @(info)stopIfTrainingAccuracyNotImproving(info,     ...
                 iterations_since_not_improving));
+
 %% Initial training of network
 random_indexes = randperm(length(training.image));
 layers = cnn_classifier(patch_size);
 net = trainNetwork(training.image(:,:,:,random_indexes),            ...
                    training.label(random_indexes), layers, options);
+
 %% Setup parameters for training the network
 iterations_since_not_improving = 30;
 opt_normal_ex = trainingOptions('sgdm', 'MaxEpoch',3, 'OutputFcn',  ...
@@ -26,26 +29,32 @@ opt_hard_ex = trainingOptions('sgdm', 'MaxEpoch',5, 'OutputFcn',    ...
                 @(info)stopIfTrainingAccuracyNotImproving(info,     ...
                 iterations_since_not_improving));
 
-probability_to_train_on_hard = 0.7;
+initial_prob_train_easy_data = 0.7;
+probability_dec_rate = 0.9;
 break_threshold = 5;
 
+prob_train_easy_data = initial_prob_train_easy_data;
+
 %% Train the network
-for i = 1:100
+for i = 1:10
     
-    if (~isfield(training, 'hard') || rand < probability_to_train_on_hard)
+    if (~isfield(training, 'hard') || rand < prob_train_easy_data)
         generate_traning_data
         random_indexes = randperm(length(training.image));
         training_data = training.image(:,:,:,random_indexes);
         training_labels = training.label(random_indexes);
         store_hard = 1;
         options = opt_normal_ex;
+        prob_train_easy_data = probability_dec_rate*prob_train_easy_data;
     else
         fprintf('Doing some hard data iterations\n');
+        fprintf(['The current hard dataset has length ' num2str(training.hard.length) '\n'])
         random_indexes = randperm(length(training.hard.label));
         training_data = training.hard.image(:,:,:,random_indexes);
         training_labels = training.hard.label(random_indexes);
         store_hard = 0;
         options = opt_hard_ex;
+        prob_train_easy_data = initial_prob_train_easy_data;
     end
     
     % Generate the new network
@@ -64,12 +73,15 @@ for i = 1:100
         generate_hard_training_data
         % If not enough hard data are added, we are satisfied with the
         % network.
-        if (length_of_hard - training.hard.length) < break_threshold
+        if (training.hard.length - length_of_hard) < break_threshold
             break
         end
     end
 end
-% 
+
+%% Evaluate the network
+evaluate_network_on_patches
+
 %%
 
 stride = 1;
