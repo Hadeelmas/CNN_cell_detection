@@ -17,3 +17,5 @@ for j = 1:length(training.image)
         training.hard.label = [training.hard.label, training.label(j)];
     end
 end
+
+training.hard.length = length(training.hard.label);
