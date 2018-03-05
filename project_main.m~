@@ -23,7 +23,7 @@ net = trainNetwork(training.image(:,:,:,random_indexes),            ...
 
 %% Setup parameters for training the network
 iterations_since_not_improving = 30;
-opt_normal_ex = trainingOptions('sgdm', 'MaxEpoch',5, 'OutputFcn',  ...
+opt_normal_ex = trainingOptions('sgdm', 'MaxEpoch',3, 'OutputFcn',  ...
                 @(info)stopIfTrainingAccuracyNotImproving(info,     ...
                 iterations_since_not_improving));
 opt_hard_ex = trainingOptions('sgdm', 'MaxEpoch',100, 'OutputFcn',    ...
@@ -95,14 +95,13 @@ B = probmap(:,:,2);
 %%
 close all
 % A = imresize(img, [size(probmap,1), size(probmap,2)], 'bilinear');
-gaussian_std = 1;
-maxima = strict_local_maxima(B, 0.5, gaussian_std);
+
+maxima = strict_local_maxima(B, 0.5, 1);
 x_maxima = (maxima(1,:) - 1) * stride + 1;
 y_maxima = (maxima(2,:) - 1) * stride + 1;
 % -------------------------------------------------- %
 % REFINING THE MAXIMA
-B_gaussian = imgaussfilt(B, gaussian_std);
-
+B
 refined_maxima = refine_maxima(maxima, B);
 x_refmaxima = (refined_maxima(1,:) - 1) * stride + 1;
 y_refmaxima = (refined_maxima(2,:) - 1) * stride + 1;
