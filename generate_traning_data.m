@@ -9,8 +9,8 @@ nbr_of_pos_extraction_per_image = 30;
 % Initializing parameters
 data_set_length = length(data.image);
 training_set = randperm(data_set_length);
-radius = 25;
-cropped_radius = 13;
+radius = cropped_radius*2-1;
+
 positives = cell(1,nbr_of_pos_extraction_per_image*data_set_length);
 % Extract the positives
 for i = 1:length(training_set)

@@ -11,9 +11,10 @@ for i = N+1:nbr_of_datacells
     img = cells{cell_idx};
     % Randomly choose which augmentations to do on each image that is to be
     % augmented.
-    nbr_of_augmentations = randi(5);
-    augmentation_choser = randperm(5,nbr_of_augmentations);
-    for j = 1:nbr_of_augmentations
+    nbr_of_aug_func = 6;
+    nbr_of_aug = randi(nbr_of_aug_func);
+    augmentation_choser = randperm(nbr_of_aug_func,nbr_of_aug);
+    for j = 1:nbr_of_aug
         switch augmentation_choser(j)
             case 1
                 img = random_rotation(img);
@@ -25,6 +26,8 @@ for i = N+1:nbr_of_datacells
                 img = random_contrast(img);
             case 5
                 img = random_noise(img);
+            case 6
+                img = random_smoothing(img);
         end
     end  
     % Append the augmented image.

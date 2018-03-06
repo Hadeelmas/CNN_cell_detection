@@ -1,4 +1,5 @@
 function refined_maxima = refine_maxima(maxima, B, std)
+
 %REFINE_MAXIMA Refines the maximas that were generated from propmap B using
 %Taylor expansion at the point
 %       maxima(1,:) = columns
