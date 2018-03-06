@@ -33,7 +33,7 @@ for i = 1:generated_indexes_size(2)
     end
 end
 % Calculate the residual on all the inliers
-residuals = sum(vecnorm(validation_inlier_pt - generated_inlier_pt));
+residuals = (sum(vecnorm(validation_inlier_pt - generated_inlier_pt)))/length(generated_inlier_pt);
 
 end
 

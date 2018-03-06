@@ -95,19 +95,20 @@ B = probmap(:,:,2);
 %%
 close all
 % A = imresize(img, [size(probmap,1), size(probmap,2)], 'bilinear');
-gaussian_std = 1;
+gaussian_std = 2;
 maxima = strict_local_maxima(B, 0.5, gaussian_std);
 x_maxima = (maxima(1,:) - 1) * stride + 1;
 y_maxima = (maxima(2,:) - 1) * stride + 1;
+%%
 % -------------------------------------------------- %
 % REFINING THE MAXIMA
-B_gaussian = imgaussfilt(B, gaussian_std);
 
-refined_maxima = refine_maxima(maxima, B);
+
+refined_maxima = refine_maxima(maxima, B, gaussian_std);
 x_refmaxima = (refined_maxima(1,:) - 1) * stride + 1;
 y_refmaxima = (refined_maxima(2,:) - 1) * stride + 1;
 % -------------------------------------------------- %
-
+%%
 imagesc(img);
 hold on
 scatter(x_maxima,y_maxima)
