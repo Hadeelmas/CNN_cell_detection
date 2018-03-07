@@ -6,6 +6,8 @@ FALSE = logical(false);
 TRUE = logical(true);
 
 
+benchmark.harditeration = [];
+benchmark.numberofmissclassifications = [];
 %% generate validation set
 nbr_of_validation = 10;
 radius = 15;
@@ -60,6 +62,8 @@ clean_hard = 400;
 nbr_max_iterations = 100;
 hard_training_off = FALSE;
 breaking_conditions_reached = FALSE;
+hard_training_flag = FALSE;
+breaking_iterations = 5;
 
 prob_train_easy_data = initial_prob_train_easy_data;
 iter = 0;
@@ -75,9 +79,12 @@ for i = 1:nbr_max_iterations
         store_hard = 1;
         options = opt_normal_ex;
         prob_train_easy_data = probability_dec_rate*prob_train_easy_data;
-    elseif training.hard.length < 500
+        benchmark.harditeration = [benchmark.harditeration, FALSE];
+    elseif training.hard.length < 300
         prob_train_easy_data = initial_prob_train_easy_data;
+        
     else
+        hard_training_flag = TRUE;
         disp('Doing some hard data iterations');
         disp(['The current hard dataset has length ' num2str(training.hard.length)])
 
@@ -87,6 +94,7 @@ for i = 1:nbr_max_iterations
         store_hard = 0;
         options = opt_hard_ex;
         prob_train_easy_data = initial_prob_train_easy_data;
+        benchmark.harditeration = [benchmark.harditeration, TRUE];
         
     end
     
@@ -112,7 +120,7 @@ for i = 1:nbr_max_iterations
 
         % If not enough hard data are added, we are satisfied with the
         % network.
-        if ~hard_training_off && ((training.hard.length - length_of_hard) < break_threshold)
+        if hard_training_flag && ((training.hard.length - length_of_hard) < break_threshold)
             disp('No new hard data has been added for a while')
             disp('Loop breaking conditions reached')
             hard_training_off = TRUE;
@@ -122,11 +130,11 @@ for i = 1:nbr_max_iterations
                 'MaxEpoch',5,   ...
                 'LearnRateDropFactor', 0.2, ...
                 'LearnRateDropPeriod', 2, ...
-                'BaseLearnRate', learn_rate, ... 
+                'InitialLearnRate', learn_rate, ... 
                 'OutputFcn',          ...
                     @(info)stopIfTrainingAccuracyNotImproving(info,     ...
                     iterations_since_not_improving));
-            
+            disp(['Do ' num2str(breaking_iterations) ' more training iterations on "easy" data with an initial learning rate of ' num2str(learn_rate)])
         end
         
         if breaking_conditions_reached

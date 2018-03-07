@@ -8,7 +8,7 @@ if ~isfield(training, 'hard')
     training.hard.label = categorical(zeros(1, maximum_length_of_hard_examples));
     training.hard.length = 0;
 end
-
+added = 0;
 % Make predictions using the net and stores the one that were wrongly
 % classified.
 for j = 1:length(training.image)
@@ -19,6 +19,7 @@ for j = 1:length(training.image)
             training.hard.length = training.hard.length + 1;
             training.hard.image(:,:,:,training.hard.length) = training.image(:,:,:,j);
             training.hard.label(training.hard.length) =  training.label(j);
+            added = added + 1;
         end
         % cleanup the correct classifications
         if training.hard.length == maximum_length_of_hard_examples
@@ -53,3 +54,5 @@ for j = 1:length(training.image)
         end
     end
 end
+
+benchmark.numberofmissclassifications = [benchmark.numberofmissclassifications, added];
