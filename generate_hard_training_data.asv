@@ -18,7 +18,7 @@ for j = 1:length(training.image)
         if training.hard.length < maximum_length_of_hard_examples
             training.hard.length = training.hard.length + 1;
             training.hard.image(:,:,:,training.hard.length) = training.image(:,:,:,j);
-            training.hard.label(training.hard.length) =  training.label(j);
+            training.hard.label(:,:,:,training.hard.length) =  training.label(j);
         end
         % cleanup the correct classifications
         if training.hard.length == maximum_length_of_hard_examples
@@ -35,14 +35,17 @@ for j = 1:length(training.image)
            nbr_removed = abs(maximum_length_of_hard_examples - training.hard.length);
            disp(['successfully removed ' num2str(nbr_removed) ' patches'])
            if nbr_removed < clean_hard
-               disp(['Failed to remove more than ' num2str(clean_hard) ' patches'])
-               nbr_to_clean_hard = clean_hard - nbr_removed;
-               disp(['Removing the ' num2str(nbr_to_clean_hard) ' earliest patches'])
-               
-               training.hard.image(:,:,:,1:nbr_to_clean_hard) = [];
-               training.hard.labels(1:nbr_to_clean_hard) = [];
-               training.hard.length = training.hard.labels - nbr_to_clean_hard;
+               disp('Failed to remove more than ' num2str(clean_hard) ' patches')
            end
+        end
+        
+        if training.hard.length == maximum_length_of_hard_examples
+            disp(['Hard dataset above ' num2str(maximum_length_of_hard_examples) ', removing the earliest ' num2str(clean_hard)])
+            training.hard.image(:,:,:,1:clean_hard) = [];
+            training.hard.labels(:,:,:,1:clean_hard) = [];
+            training.hard.length = training.hard.labels - clean_hard;
         end
     end
 end
+
+training.hard.length = length(training.hard.label);

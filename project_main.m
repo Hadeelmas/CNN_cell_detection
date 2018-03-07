@@ -44,6 +44,7 @@ prob_train_easy_data = initial_prob_train_easy_data;
 iter = 0;
 %% Train the network
 for i = 1:nbr_max_iterations
+    disp(['Commencing iteration ' num2str(i)])
     iter = i;
     if (~isfield(training, 'hard') || rand < prob_train_easy_data)
         generate_traning_data
@@ -87,12 +88,7 @@ for i = 1:nbr_max_iterations
         disp('Done!')
         disp(['The hard dataset currently contains ' num2str(training.hard.length) ' elements'])
 
-        if (training.hard.length > maximum_length_of_hard_examples)
-            disp(['Hard dataset above ' num2str(maximum_length_of_hard_examples) ', removing the earliest ' num2str(clean_hard)])
-            training.hard.image(:,:,:,1:clean_hard) = [];
-            training.hard.labels(:,:,:,1:clean_hard) = [];
-            training.hard.length = training.hard.labels - clean_hard;
-        end
+
         % If not enough hard data are added, we are satisfied with the
         % network.
         if (training.hard.length - length_of_hard) < break_threshold
