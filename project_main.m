@@ -3,11 +3,14 @@
 load_images
 
 %% generate validation set
+nbr_of_validation = 10;
+radius = 7;
+nbr_of_negatives = 150;
 
 generate_validation_data
 
 %% generate training data
-cropped_radius = 11;
+cropped_radius = radius;
 
 generate_traning_data
 

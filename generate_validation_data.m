@@ -1,7 +1,5 @@
 % Script to generate validation data
-nbr_of_validation = 10;
-radius = 13;
-nbr_of_negatives = 150;
+
 
 if ~exist('data','var')
     load_images
