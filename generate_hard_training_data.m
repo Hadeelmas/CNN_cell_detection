@@ -23,7 +23,7 @@ for j = 1:length(training.image)
         % cleanup the correct classifications
         if training.hard.length == maximum_length_of_hard_examples
            disp(['Hard dataset above ' num2str(maximum_length_of_hard_examples)])
-           disp(['Attemtping to clean up the patches which has become easy to classify'])
+           disp(['Attemtping to remove the patches which has become easy to classify'])
            for k = maximum_length_of_hard_examples:-1:1
                pred_cleanup = net.classify(training.hard.image(:,:,:,k));
                 if (pred_cleanup ~= training.hard.label(k))
@@ -48,7 +48,8 @@ for j = 1:length(training.image)
            
            training.hard.image = cat(4, training.hard.image, zeros([patch_size, maximum_length_of_hard_examples - length_of_set]));
            training.hard.label = [training.hard.label, categorical(zeros(1, (maximum_length_of_hard_examples-length_of_set)))];
-           
+           % and change the flag variable in main
+           length_of_hard = training.hard.length;
         end
     end
 end

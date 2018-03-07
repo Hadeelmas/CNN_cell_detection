@@ -12,7 +12,7 @@ if info.State == "start"
     bestTrainAccuracy = 0;
     valLag = 0;
     
-elseif info.TrainingAccuracy > 0.9
+elseif info.BaseLearnRate < normal_learn_rate &&info.TrainingAccuracy > 0.9
     
     % Compare the current training accuracy to the best accuracy so far,
     % and either set the best accuracy to the current accuracy, or increase
