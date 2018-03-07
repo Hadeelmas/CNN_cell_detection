@@ -56,10 +56,10 @@ decrement_factor = 10;
 
 initial_prob_train_easy_data = 1;
 probability_dec_rate = 0.9;
-break_threshold = 3;
+break_threshold = 1;
 maximum_length_of_hard_examples = 4000;
 clean_hard = 400;
-nbr_max_iterations = 100;
+nbr_max_iterations = 200;
 hard_training_off = FALSE;
 breaking_conditions_reached = FALSE;
 hard_training_flag = FALSE;
@@ -80,9 +80,9 @@ for i = 1:nbr_max_iterations
         options = opt_normal_ex;
         prob_train_easy_data = probability_dec_rate*prob_train_easy_data;
         benchmark.harditeration = [benchmark.harditeration, FALSE];
-    elseif training.hard.length < 300
-        prob_train_easy_data = initial_prob_train_easy_data;
-        
+        if training.hard.length < 300
+            prob_train_easy_data = initial_prob_train_easy_data;
+        end
     else
         hard_training_flag = TRUE;
         disp('Doing some hard data iterations');
@@ -121,7 +121,7 @@ for i = 1:nbr_max_iterations
         % If not enough hard data are added, we are satisfied with the
         % network.
         if hard_training_flag && ((training.hard.length - length_of_hard) < break_threshold)
-            disp('No new hard data has been added for a while')
+            disp('Too few missclassifications')
             disp('Loop breaking conditions reached')
             hard_training_off = TRUE;
             breaking_conditions_reached = TRUE;
@@ -129,7 +129,7 @@ for i = 1:nbr_max_iterations
             opt_normal_ex = trainingOptions('sgdm', ...
                 'MaxEpoch',5,   ...
                 'LearnRateDropFactor', 0.2, ...
-                'LearnRateDropPeriod', 2, ...
+                'LearnRateDropPeriod', 1, ...
                 'InitialLearnRate', learn_rate, ... 
                 'OutputFcn',          ...
                     @(info)stopIfTrainingAccuracyNotImproving(info,     ...
@@ -180,6 +180,7 @@ x_refmaxima = (refined_maxima(1,:) - 1) * stride + 1;
 y_refmaxima = (refined_maxima(2,:) - 1) * stride + 1;
 % -------------------------------------------------- %
 %%
+figure(1)
 imagesc(img);
 hold on
 scatter(x_maxima,y_maxima)
@@ -187,8 +188,7 @@ scatter(x_refmaxima,y_refmaxima)
 scatter(index_val(1,:), index_val(2,:))
 legend('Maxima', 'Refined Maxima', 'Validation indexes')
 hold off
-% figure
-% imagesc(B)
+
 threshold = 5;
 generated_indexes = [x_maxima; y_maxima];
 generated_indexes_refined = [x_refmaxima; y_refmaxima];
@@ -196,6 +196,17 @@ generated_indexes_refined = [x_refmaxima; y_refmaxima];
     loss_function(generated_indexes,index_val, threshold);
 [cell_count_diff_refined,nbr_of_outliers_refined, residuals_refined] = ...
     loss_function(generated_indexes_refined,index_val, threshold);
+
+figure(2)
+plot(benchmark.numberofmissclassifications)
+hold on
+benchmark.harditeration(benchmark.harditeration == 0) = NaN;
+scatter(1:length(benchmark.harditeration), 20*benchmark.harditeration)
+xlabel('Iteration number')
+ylabel('Number of missclassifications')
+legend('Neural network', 'Hard dataset training iteration')
+
+
 
 disp(['The number of cells counted is ' num2str(cell_count_diff) ' less than the real value'])
 disp(['The number of outlier generated (threshold = ' num2str(threshold) ') on the non refined set is ' num2str(nbr_of_outliers)])

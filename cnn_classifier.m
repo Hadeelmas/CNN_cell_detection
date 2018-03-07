@@ -20,7 +20,6 @@ function layers = cnn_classifier(patch_size)
         reluLayer();
         convolution2dLayer([3,3], 160);
         batchNormalizationLayer();
-        %maxPooling2dLayer([2,2], 'Stride', 2);
         convolution2dLayer([2,2], 2);
         softmaxLayer();
         pixelClassificationLayer()];
