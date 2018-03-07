@@ -80,7 +80,7 @@ for i = 1:nbr_max_iterations
         options = opt_normal_ex;
         prob_train_easy_data = probability_dec_rate*prob_train_easy_data;
         benchmark.harditeration = [benchmark.harditeration, FALSE];
-        if training.hard.length < 300
+        if (~isfield(training, 'hard') || training.hard.length < 300
             prob_train_easy_data = initial_prob_train_easy_data;
         end
     else
