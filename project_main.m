@@ -213,6 +213,7 @@ disp(['The number of outlier generated (threshold = ' num2str(threshold) ') on t
 disp(['The residuals on the non refined set is ' num2str(residuals)])
 disp(['The number of outlier generated (threshold = ' num2str(threshold) ') on the refined set is ' num2str(nbr_of_outliers_refined)])
 disp(['The residuals on the refined set is ' num2str(residuals_refined)])
+save('my_network.mat', 'net')
 load handel.mat;
 sound(y, Fs);
 %%
