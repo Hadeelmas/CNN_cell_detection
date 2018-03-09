@@ -14,7 +14,7 @@ for i = N+1:nbr_of_datacells
     nbr_of_aug_func = 6;
     nbr_of_aug = randi(nbr_of_aug_func);
     augmentation_choser = randperm(nbr_of_aug_func,nbr_of_aug);
-    if rand > 0.8
+    if rand > 2
         augmentation_choser = [augmentation_choser, 7];
     end
     for j = 1:length(augmentation_choser)

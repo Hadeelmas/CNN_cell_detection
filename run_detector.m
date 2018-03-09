@@ -4,7 +4,7 @@ function detections = run_detector(img)
     net_path = ['my_network.mat'];
     load(net_path)
     stride = 4;
-    
+    % fixa striding. Fixa edge positives. Googla neural network size matlab
     probmap = sliding_cnn(net, img, stride);
     probmap_pos = probmap(:,:,2);
     gaussian_std = 2;
