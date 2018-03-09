@@ -14,7 +14,10 @@ for i = N+1:nbr_of_datacells
     nbr_of_aug_func = 6;
     nbr_of_aug = randi(nbr_of_aug_func);
     augmentation_choser = randperm(nbr_of_aug_func,nbr_of_aug);
-    for j = 1:nbr_of_aug
+    if rand > 0.8
+        augmentation_choser = [augmentation_choser, 7];
+    end
+    for j = 1:length(augmentation_choser)
         switch augmentation_choser(j)
             case 1
                 img = random_rotation(img);
@@ -28,6 +31,8 @@ for i = N+1:nbr_of_datacells
                 img = random_noise(img);
             case 6
                 img = random_smoothing(img);
+            case 7
+                img = random_translation(img);
         end
     end  
     % Append the augmented image.

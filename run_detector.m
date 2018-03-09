@@ -3,7 +3,7 @@ function detections = run_detector(img)
     addpath(genpath(fileparts(which('run_detector.m'))));
     net_path = ['my_network.mat'];
     load(net_path)
-    stride = 1;
+    stride = 4;
     
     probmap = sliding_cnn(net, img, stride);
     probmap_pos = probmap(:,:,2);
