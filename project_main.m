@@ -71,7 +71,10 @@ iter = 0;
 for i = 1:nbr_max_iterations
     disp(['Commencing iteration ' num2str(i)])
     iter = i;
-    if (~isfield(training, 'hard') || rand < prob_train_easy_data) || hard_training_off
+    if ~isfield(training, 'hard') || (training.hard.length < 300) || (i > nbr_max_iterations - 5)
+            prob_train_easy_data = 1;
+    end
+    if  rand < prob_train_easy_data) || hard_training_off
         generate_traning_data
         random_indexes = randperm(length(training.image));
         training_data = training.image(:,:,:,random_indexes);
@@ -80,15 +83,13 @@ for i = 1:nbr_max_iterations
         options = opt_normal_ex;
         prob_train_easy_data = probability_dec_rate*prob_train_easy_data;
         benchmark.harditeration = [benchmark.harditeration, FALSE];
-        if ~isfield(training, 'hard') || (training.hard.length < 300)
-            prob_train_easy_data = initial_prob_train_easy_data;
-        end
+        
     else
         hard_training_flag = TRUE;
         disp('Doing some hard data iterations');
         disp(['The current hard dataset has length ' num2str(training.hard.length)])
 
-        random_indexes = randperm(length(training.hard.label));
+        random_indexes = randperm(training.hard.length);
         training_data = training.hard.image(:,:,:,random_indexes);
         training_labels = training.hard.label(random_indexes);
         store_hard = 0;
