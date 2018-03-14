@@ -1,5 +1,5 @@
 function detections = run_detector(img)
-
+    % Runs de detector on the image
     addpath(genpath(fileparts(which('run_detector.m'))));
     net_path = ['my_network.mat'];
     load(net_path)
