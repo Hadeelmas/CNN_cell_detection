@@ -3,7 +3,7 @@ function contrast_img = random_contrast(img)
 %totally black or white
 
     low_bound = -0.3;
-    upp_bound = 0.2;
+    upp_bound = 0.3;
     contrast = (upp_bound-low_bound).*rand(1) + low_bound;
     % add the contrast (e.g. a number offset to the image
     contrast_img = img + contrast;

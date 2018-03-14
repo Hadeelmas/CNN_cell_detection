@@ -1,16 +1,14 @@
 
 %% Load all images and their corresponding cell centers
 load_images
-%%
+%% Defining parameters and setting up logging data
 FALSE = logical(false);
 TRUE = logical(true);
-
-
 benchmark.harditeration = [];
 benchmark.numberofmissclassifications = [];
 %% generate validation set
 nbr_of_validation = 10;
-radius = 15;
+radius = 12;
 nbr_of_negatives = 150;
 
 generate_validation_data
@@ -34,6 +32,7 @@ net = trainNetwork(training.image(:,:,:,random_indexes),            ...
 
 
 %% Setup parameters for training the network
+% Training parameters
 iterations_since_not_improving = 30;
 opt_normal_ex = trainingOptions('sgdm', ...
                                 'MaxEpoch', 5,   ...
@@ -51,20 +50,37 @@ opt_hard_ex = trainingOptions('sgdm', ...
                     @(info)stopIfTrainingAccuracyNotImproving(info,     ...
                     iterations_since_not_improving));
             
+% Base learn rate
 learn_rate = 0.01;
+% Decrement factor
 decrement_factor = 10;
-
+% Initial probability to train on easy data. Should be 1
 initial_prob_train_easy_data = 1;
-probability_dec_rate = 0.9;
+% Probability to train on the hard data will increase after each iteration
+% by a factor of:
+probability_dec_rate = 0.7;
+% Threshold of how many hard data elements we add to the hard dataset
+% before entering break conditions
 break_threshold = 1;
+% Maximum size of the hard dataset before cleaningattempts (i.e correctly
+% classified data are removed) are made
 maximum_length_of_hard_examples = 4000;
+% If unsuccessful cleaningattemt, remove the earliest xx elements
 clean_hard = 400;
-nbr_max_iterations = 100;
+% Total number of iteration in the main loop as most
+nbr_max_iterations = 1000;
+% TRUE = turns off hard training iterations
 hard_training_off = FALSE;
+% After some lucky conditions when the stars are aligned, we might enter an
+% if case which breaks the loop due to too few hard data samples where
+% added in the hard dataset. We then do xx iterations on the easy data
+breaking_iterations = 5;
+% If we reach this base learning rate, we break the loop.
+learn_rate_break = 10e-9;
+
+
 breaking_conditions_reached = FALSE;
 hard_training_flag = FALSE;
-breaking_iterations = 5;
-
 prob_train_easy_data = initial_prob_train_easy_data;
 iter = 0;
 %% Train the network
@@ -74,7 +90,7 @@ for i = 1:nbr_max_iterations
     if ~isfield(training, 'hard') || (training.hard.length < 300) || (i > nbr_max_iterations - 5)
             prob_train_easy_data = 1;
     end
-    if  rand < prob_train_easy_data) || hard_training_off
+    if  (rand < prob_train_easy_data) || hard_training_off
         generate_traning_data
         random_indexes = randperm(length(training.image));
         training_data = training.image(:,:,:,random_indexes);
@@ -117,16 +133,12 @@ for i = 1:nbr_max_iterations
         generate_hard_training_data
         disp('Done!')
         disp(['The hard dataset currently contains ' num2str(training.hard.length) ' elements'])
+        
 
-
-        % If not enough hard data are added, we are satisfied with the
-        % network.
+        % If not enough hard data are added, we have some options of either
+        % breaking the loop or lowering the learning rate
         if hard_training_flag && ((training.hard.length - length_of_hard) < break_threshold)
-            disp('Too few missclassifications')
-            disp('Loop breaking conditions reached')
-            hard_training_off = TRUE;
-            breaking_conditions_reached = TRUE;
-            learn_rate = learn_rate/decrement_factor;
+            learn_rate = learn_rate/decrement_factor;            
             opt_normal_ex = trainingOptions('sgdm', ...
                 'MaxEpoch',5,   ...
                 'LearnRateDropFactor', 0.2, ...
@@ -135,15 +147,41 @@ for i = 1:nbr_max_iterations
                 'OutputFcn',          ...
                     @(info)stopIfTrainingAccuracyNotImproving(info,     ...
                     iterations_since_not_improving));
+            opt_hard_ex = trainingOptions('sgdm', ...
+                              'MaxEpoch', 100, ...
+                              'LearnRateDropFactor', 0.3, ...
+                              'LearnRateDropPeriod', 4, ...
+                              'InitialLearnRate', learn_rate, ... 
+                              'OutputFcn',    ...
+                    @(info)stopIfTrainingAccuracyNotImproving(info,     ...
+                    iterations_since_not_improving));
+                
+            % If not enough hard data has been added for a while we enter
+            % this section where we continue to do xx more iterations on
+            % the easy dataset.
+            if (benchmark.numberofmissclassifications(end-3:end)) < 4
+            disp('Too few missclassifications')
+            disp('Loop breaking conditions reached')
+            hard_training_off = TRUE;
+            breaking_conditions_reached = TRUE;
+            learn_rate = learn_rate/decrement_factor;
             disp(['Do ' num2str(breaking_iterations) ' more training iterations on "easy" data with an initial learning rate of ' num2str(learn_rate)])
+            end
+            
         end
-        
         if breaking_conditions_reached
             if breaking_iterations <= 0
                 break
             else
             breaking_iterations = breaking_iterations - 1;
             end
+        end
+     
+        % If we eventually lower the learning rate too much we break
+        if learn_rate < learn_rate_break
+            disp(['learn rate decreased below ' num2str(learn_rate_break)])
+            disp('breaking...')
+            break
         end
         
     end
@@ -156,65 +194,43 @@ sound(y, Fs);
 %% Evaluate the network
 evaluate_network_on_patches
 
-%%
+%% Save the network
 
-stride = 1;
-probmap = sliding_cnn(net, data.image{1}, stride);
-
-img = data.image{1};
-index_val = data.cellcenters{1};
+save('my_network.mat', 'net')
+%% Display how well we did on one of the validation picture
+clf
+i = randi(nbr_of_validation);
+img = validation.image{i};
+index_val = validation.cellcenters{i};
 imsize = size(img);
-B = probmap(:,:,2);
-
-%%
-close all
-gaussian_std = 2;
-maxima = strict_local_maxima(B, 0.5, gaussian_std);
-x_maxima = (maxima(1,:) - 1) * stride + 1;
-y_maxima = (maxima(2,:) - 1) * stride + 1;
-%%
-% -------------------------------------------------- %
-% REFINING THE MAXIMA
-
-refined_maxima = refine_maxima(maxima, B, gaussian_std);
-x_refmaxima = (refined_maxima(1,:) - 1) * stride + 1;
-y_refmaxima = (refined_maxima(2,:) - 1) * stride + 1;
-% -------------------------------------------------- %
-%%
 figure(1)
 imagesc(img);
 hold on
-scatter(x_maxima,y_maxima)
-scatter(x_refmaxima,y_refmaxima)
+detections = run_detector(img);
+scatter(detections(1,:),detections(2,:))
 scatter(index_val(1,:), index_val(2,:))
-legend('Maxima', 'Refined Maxima', 'Validation indexes')
-hold off
+
+legend('Detections', 'Validations')
 
 threshold = 5;
-generated_indexes = [x_maxima; y_maxima];
-generated_indexes_refined = [x_refmaxima; y_refmaxima];
-[cell_count_diff,nbr_of_outliers, residuals] = ...
-    loss_function(generated_indexes,index_val, threshold);
+
 [cell_count_diff_refined,nbr_of_outliers_refined, residuals_refined] = ...
-    loss_function(generated_indexes_refined,index_val, threshold);
+    loss_function(detections,index_val, threshold);
 
 figure(2)
-plot(benchmark.numberofmissclassifications)
-hold on
 benchmark.harditeration(benchmark.harditeration == 0) = NaN;
+plot(benchmark.numberofmissclassifications)
 scatter(1:length(benchmark.harditeration), 20*benchmark.harditeration)
 xlabel('Iteration number')
 ylabel('Number of missclassifications')
 legend('Neural network', 'Hard dataset training iteration')
 
+hold off
 
-
-disp(['The number of cells counted is ' num2str(cell_count_diff) ' less than the real value'])
-disp(['The number of outlier generated (threshold = ' num2str(threshold) ') on the non refined set is ' num2str(nbr_of_outliers)])
-disp(['The residuals on the non refined set is ' num2str(residuals)])
+disp(['The number of cells counted is ' num2str(cell_count_diff_refined) ' less than the real value'])
 disp(['The number of outlier generated (threshold = ' num2str(threshold) ') on the refined set is ' num2str(nbr_of_outliers_refined)])
 disp(['The residuals on the refined set is ' num2str(residuals_refined)])
-save('my_network.mat', 'net')
-load handel.mat;
-sound(y, Fs);
+
+%load handel.mat;
+%sound(y, Fs);
 %%

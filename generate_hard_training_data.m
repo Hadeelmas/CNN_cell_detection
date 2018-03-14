@@ -3,12 +3,13 @@
 
 % Begin by checking the training data has a 'hard' field and creates it if
 % it doesnt already exist.
+added = 0;
 if ~isfield(training, 'hard')
     training.hard.image = zeros([patch_size, maximum_length_of_hard_examples]);
     training.hard.label = categorical(zeros(1, maximum_length_of_hard_examples));
     training.hard.length = 0;
 end
-added = 0;
+
 % Make predictions using the net and stores the one that were wrongly
 % classified.
 for j = 1:length(training.image)
@@ -41,8 +42,8 @@ for j = 1:length(training.image)
                disp(['Removing the ' num2str(nbr_to_clean_hard) ' earliest patches'])
                
                training.hard.image(:,:,:,1:nbr_to_clean_hard) = [];
-               training.hard.labels(1:nbr_to_clean_hard) = [];
-               training.hard.length = training.hard.labels - nbr_to_clean_hard;
+               training.hard.label(1:nbr_to_clean_hard) = [];
+               training.hard.length = training.hard.length - nbr_to_clean_hard;
            end
            % finally zeropad
            length_of_set = size(training.hard.label, 2);

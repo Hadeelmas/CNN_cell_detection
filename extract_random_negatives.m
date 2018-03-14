@@ -3,7 +3,7 @@ function negatives = extract_random_negatives(img, cell_indexes, ...
 % Function for extract random negative patches. The patches must not be
 % any closer to a positive centre 
 
-    threshold = radius-4;
+    threshold = radius;
     img_size = size(img);
     % Extract the midpoint of N number of negative patches that are not too
     % close to a cell centre
@@ -16,7 +16,11 @@ function negatives = extract_random_negatives(img, cell_indexes, ...
         x_mid = round(x_mid); y_mid = round(y_mid);
         [x, y] = extract_patch([x_mid(i),y_mid(i)], radius, img_size(1:2));
         % Add them all in to a cell of negative patches
-        negatives{i} = img(y,x,:);
+        negative = img(y,x,:);
+        if rand > 0.7
+            negative = random_translation(negative);
+        end
+        negatives{i} = negative;
     end
 end
 
