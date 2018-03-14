@@ -8,11 +8,7 @@ layers = [
         dropoutLayer(0.05); %http://mipal.snu.ac.kr/images/1/16/Dropout_ACCV2016.pdf
         convolution2dLayer([3,3], 40);
         batchNormalizationLayer();
-        
         convolution2dLayer([3,3], 80);
-        %batchNormalizationLayer();
-        %reluLayer();
-        %maxPooling2dLayer([2,2], 'Stride', 2);
         maxPooling2dLayer([2,2], 'Stride', 2, 'Padding',[1 0 1 0] );
         dropoutLayer(0.1);
         convolution2dLayer([3,3], 160);
@@ -29,8 +25,7 @@ layers = [
         dropoutLayer(0.05);
         convolution2dLayer([3,3], 1280);
         batchNormalizationLayer();
-                reluLayer();
-
+        reluLayer();
         dropoutLayer(0.05);
         convolution2dLayer([2,2], 2);
         batchNormalizationLayer();
