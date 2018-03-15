@@ -11,11 +11,11 @@ for i = N+1:nbr_of_datacells
     img = cells{cell_idx};
     % Randomly choose which augmentations to do on each image that is to be
     % augmented.
-    nbr_of_aug_func = 6;
+    nbr_of_aug_func = 7;
     nbr_of_aug = randi(nbr_of_aug_func);
     augmentation_choser = randperm(nbr_of_aug_func,nbr_of_aug);
     if rand > 2
-        augmentation_choser = [augmentation_choser, 7];
+        augmentation_choser = [augmentation_choser, 8];
     end
     for j = 1:length(augmentation_choser)
         switch augmentation_choser(j)
@@ -32,6 +32,8 @@ for i = N+1:nbr_of_datacells
             case 6
                 img = random_smoothing(img);
             case 7
+                img = random_brightness(img);
+            case 8
                 img = random_translation(img);
         end
     end  

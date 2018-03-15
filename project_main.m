@@ -58,7 +58,7 @@ decrement_factor = 10;
 initial_prob_train_easy_data = 1;
 % Probability to train on the hard data will increase after each iteration
 % by a factor of:
-probability_dec_rate = 0.7;
+probability_dec_rate = 0.8;
 % Threshold of how many hard data elements we add to the hard dataset
 % before entering break conditions
 break_threshold = 1;
@@ -68,7 +68,7 @@ maximum_length_of_hard_examples = 4000;
 % If unsuccessful cleaningattemt, remove the earliest xx elements
 clean_hard = 400;
 % Total number of iteration in the main loop as most
-nbr_max_iterations = 1000;
+nbr_max_iterations = 400;
 % TRUE = turns off hard training iterations
 hard_training_off = FALSE;
 % After some lucky conditions when the stars are aligned, we might enter an
@@ -76,7 +76,7 @@ hard_training_off = FALSE;
 % added in the hard dataset. We then do xx iterations on the easy data
 breaking_iterations = 5;
 % If we reach this base learning rate, we break the loop.
-learn_rate_break = 10e-9;
+learn_rate_break = 10e-7;
 
 
 breaking_conditions_reached = FALSE;
@@ -130,7 +130,9 @@ for i = 1:nbr_max_iterations
 
         
         disp('Generating hard data')
-        generate_hard_training_data
+        if ~hard_training_off
+            generate_hard_training_data
+        end
         disp('Done!')
         disp(['The hard dataset currently contains ' num2str(training.hard.length) ' elements'])
         
@@ -231,6 +233,6 @@ disp(['The number of cells counted is ' num2str(cell_count_diff_refined) ' less 
 disp(['The number of outlier generated (threshold = ' num2str(threshold) ') on the refined set is ' num2str(nbr_of_outliers_refined)])
 disp(['The residuals on the refined set is ' num2str(residuals_refined)])
 
-%load handel.mat;
-%sound(y, Fs);
+load handel.mat;
+sound(y, Fs);
 %%
